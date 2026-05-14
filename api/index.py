@@ -13,12 +13,14 @@ PAPERS_DIR = os.path.join(_BASE_DIR, "papers")
 PUBLIC_DIR = os.path.join(_BASE_DIR, "public")
 
 
+_PLACEHOLDER_TITLES = {"untitled", "unknown", "no title", "none", ""}
+
 def _get_display_name(pdf_path: str, stem: str) -> str:
     try:
         with pdfplumber.open(pdf_path) as pdf:
             if pdf.metadata:
                 title = (pdf.metadata.get("Title") or "").strip()
-                if len(title) > 4:
+                if len(title) > 4 and title.lower() not in _PLACEHOLDER_TITLES:
                     return title
     except Exception:
         pass
@@ -55,19 +57,21 @@ def _build_index() -> None:
     if not os.path.isdir(PAPERS_DIR):
         print(f"[bioRAGsearch] papers dir not found: {PAPERS_DIR}")
         return
-    for fname in sorted(os.listdir(PAPERS_DIR)):
-        if not fname.lower().endswith(".pdf"):
-            continue
+    all_pdfs = sorted(f for f in os.listdir(PAPERS_DIR) if f.lower().endswith(".pdf"))
+    print(f"[bioRAGsearch] found PDFs: {all_pdfs}")
+    for fname in all_pdfs:
         path = os.path.join(PAPERS_DIR, fname)
         name = _get_display_name(path, fname[:-4])
         try:
-            for chunk in _chunk_text(_extract_text(path)):
+            chunks = _chunk_text(_extract_text(path))
+            for chunk in chunks:
                 _corpus.append((chunk, name))
+            print(f"[bioRAGsearch] loaded '{name}' ({len(chunks)} chunks)")
         except Exception as exc:
-            print(f"[bioRAGsearch] skipped {fname}: {exc}")
+            print(f"[bioRAGsearch] ERROR loading {fname}: {exc}")
     if _corpus:
         _bm25 = BM25Okapi([c[0].lower().split() for c in _corpus])
-        print(f"[bioRAGsearch] indexed {len(_corpus)} chunks from {PAPERS_DIR}")
+        print(f"[bioRAGsearch] index ready: {len(_corpus)} chunks total")
 
 
 _build_index()
@@ -82,6 +86,12 @@ async def root() -> HTMLResponse:
     html_path = os.path.join(PUBLIC_DIR, "index.html")
     with open(html_path, encoding="utf-8") as f:
         return HTMLResponse(f.read())
+
+
+@app.get("/papers")
+async def list_papers():
+    names = list(dict.fromkeys(paper for _, paper in _corpus))
+    return {"count": len(names), "papers": names}
 
 
 @app.post("/search")
