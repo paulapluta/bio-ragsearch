@@ -50,6 +50,7 @@ _HTML = """\
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
 
     :root {
       --navy:       #0C1F3F;
@@ -89,18 +90,14 @@ _HTML = """\
       font-size: 0.9375rem;
       color: var(--text-2);
       line-height: 1.65;
-      max-width: 560px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     hr { border: none; border-top: 1px solid var(--border); }
 
     /* ── Main layout ── */
     main {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 0 24px 96px;
+      width: 100%;
+      padding: 0 32px 96px;
     }
 
     /* ── Papers section ── */
@@ -310,8 +307,8 @@ _HTML = """\
 
 <header class="site-header">
   <h1>bio-ragsearch</h1>
-  <p class="subtitle">A personal experiment in RAG &mdash; built to explore how retrieval-augmented
-    generation works using real PhD research papers as a knowledge base. Built with Claude Code.</p>
+  <p class="subtitle">A personal experiment in RAG - built to explore how retrieval-augmented
+    generation works using research papers as a knowledge base. Built with Claude Code.</p>
 </header>
 <hr />
 
@@ -323,42 +320,33 @@ _HTML = """\
     <p class="intro">This tool has been trained on 5 peer-reviewed papers. Ask anything about the research below.</p>
     <ol class="papers-list">
       <li>
-        Urquiza, P., La&iacute;n, A., Sanz-Parra, A., Moreno, J., Bernardo-Seisdedos, G., Dubus, P.,
-        Gonz&aacute;lez, E., Guti&eacute;rrez-de-Juan, V., Garc&iacute;a, S., Era&ntilde;a, H., San Juan, I.,
-        Mac&iacute;as, I., Ben Bdira, F., Pluta, P., Ortega, G., Oyarz&aacute;bal, J.,
-        Gonz&aacute;lez-Mu&ntilde;iz, R., Rodr&iacute;guez-Cuesta, J., Anguita, J., D&iacute;ez, E.,
-        Blouin, J.-M., de Verneuil, H., Mato, J. M., Richard, E., Falc&oacute;n-P&eacute;rez, J. M.,
-        Castilla, J., &amp; Millet, O. (2018). Repurposing ciclopirox as a pharmacological chaperone in a
-        model of congenital erythropoietic porphyria. <em>Science Translational Medicine</em>,
-        <em>10</em>(459), eaat7467.
+        Urquiza, P., La&iacute;n, A., Sanz-Parra, A., et al. (2018). Repurposing ciclopirox as a
+        pharmacological chaperone in a model of congenital erythropoietic porphyria.
+        <em>Science Translational Medicine</em>, <em>10</em>(459), eaat7467.
         <a href="https://doi.org/10.1126/scitranslmed.aat7467" target="_blank" rel="noopener">https://doi.org/10.1126/scitranslmed.aat7467</a>
       </li>
       <li>
-        Pluta, P., Roversi, P., Bernardo-Seisdedos, G., Rojas, A. L., Cooper, J. B., Gu, S.,
-        Pickersgill, R. W., &amp; Millet, O. (2018). Structural basis of pyrrole polymerization in human
-        porphobilinogen deaminase. <em>Biochimica et Biophysica Acta (BBA) &mdash; General Subjects</em>,
-        <em>1862</em>(9), 1948&ndash;1955.
+        Pluta, P., Roversi, P., Bernardo-Seisdedos, G., et al. (2018). Structural basis of pyrrole
+        polymerization in human porphobilinogen deaminase.
+        <em>Biochimica et Biophysica Acta (BBA) - General Subjects</em>, <em>1862</em>(9), 1948-1955.
         <a href="https://doi.org/10.1016/j.bbagen.2018.06.013" target="_blank" rel="noopener">https://doi.org/10.1016/j.bbagen.2018.06.013</a>
       </li>
       <li>
-        Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., Mart&iacute;nez-Montero, P., Molano, J.,
-        Pa&iacute;no, C. L., Millet, O., &amp; Barrio, L. C. (2018). Directional coupling of
+        Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., et al. (2018). Directional coupling of
         oligodendrocyte connexin-47 and astrocyte connexin-43 gap junctions.
-        <em>Glia</em>, <em>66</em>(11), 2340&ndash;2352.
+        <em>Glia</em>, <em>66</em>(11), 2340-2352.
         <a href="https://doi.org/10.1002/glia.23471" target="_blank" rel="noopener">https://doi.org/10.1002/glia.23471</a>
       </li>
       <li>
-        Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., La&iacute;n, A., Sanz-Parra, A.,
-        Falcon-Perez, J. M., &amp; Millet, O. (2014). Tuning intracellular homeostasis of human
-        uroporphyrinogen III synthase by enzyme engineering at a single hotspot of congenital
-        erythropoietic porphyria. <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805&ndash;5813.
+        Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., et al. (2014). Tuning intracellular homeostasis
+        of human uroporphyrinogen III synthase by enzyme engineering at a single hotspot of congenital
+        erythropoietic porphyria. <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805-5813.
         <a href="https://doi.org/10.1093/hmg/ddu298" target="_blank" rel="noopener">https://doi.org/10.1093/hmg/ddu298</a>
       </li>
       <li>
-        Kantari, C., Millet, A., Gabillet, J., Hajjar, E., Broemstrup, T., Pluta, P., Reuter, N.,
-        &amp; Witko-Sarsat, V. (2011). Molecular analysis of the membrane insertion domain of
-        proteinase 3, the Wegener&rsquo;s autoantigen, in RBL cells: Implication for its pathogenic
-        activity. <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941&ndash;950.
+        Kantari, C., Millet, A., Gabillet, J., et al. (2011). Molecular analysis of the membrane
+        insertion domain of proteinase 3, the Wegener's autoantigen, in RBL cells: Implication for
+        its pathogenic activity. <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941-950.
         <a href="https://doi.org/10.1189/jlb.1210695" target="_blank" rel="noopener">https://doi.org/10.1189/jlb.1210695</a>
       </li>
     </ol>
