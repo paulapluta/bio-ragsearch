@@ -44,7 +44,7 @@ _HTML = """\
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bioRAGsearch</title>
+  <title>bio-ragsearch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -71,6 +71,7 @@ _HTML = """\
       min-height: 100vh;
     }
 
+    /* ── Header ── */
     .site-header {
       padding: 52px 24px 40px;
       text-align: center;
@@ -83,21 +84,77 @@ _HTML = """\
       letter-spacing: -0.03em;
     }
 
-    .site-header p {
-      margin-top: 8px;
-      font-size: 0.875rem;
-      color: var(--text-muted);
+    .subtitle {
+      margin-top: 12px;
+      font-size: 0.9375rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     hr { border: none; border-top: 1px solid var(--border); }
 
+    /* ── Main layout ── */
     main {
       max-width: 700px;
       margin: 0 auto;
-      padding: 44px 24px 96px;
+      padding: 0 24px 96px;
     }
 
-    .search-row { display: flex; gap: 10px; }
+    /* ── Papers section ── */
+    .papers-section {
+      padding: 40px 0 36px;
+    }
+
+    .papers-section h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .intro {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      margin-bottom: 20px;
+    }
+
+    .papers-list {
+      list-style: decimal;
+      padding-left: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .papers-list li {
+      font-size: 0.8125rem;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    .papers-list a {
+      color: var(--blue-text);
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .papers-list a:hover { text-decoration: underline; }
+
+    /* ── Section separator ── */
+    .section-sep {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ── Search section ── */
+    .search-section { padding: 36px 0 0; }
+
+    .search-row { display: flex; gap: 8px; }
 
     .search-row input {
       flex: 1;
@@ -116,7 +173,7 @@ _HTML = """\
     .search-row input:focus { border-color: var(--navy); }
     .search-row input::placeholder { color: var(--text-muted); }
 
-    .search-row button {
+    .btn-search {
       display: flex;
       align-items: center;
       gap: 7px;
@@ -133,9 +190,27 @@ _HTML = """\
       transition: background 0.15s, opacity 0.15s;
     }
 
-    .search-row button:hover:not(:disabled) { background: var(--navy-hover); }
-    .search-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-search:hover:not(:disabled) { background: var(--navy-hover); }
+    .btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
 
+    .btn-clear {
+      padding: 11px 16px;
+      background: transparent;
+      color: var(--text-2);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .btn-clear:hover { background: var(--card-bg); border-color: var(--text-muted); }
+    .btn-clear:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Button spinner */
     .spinner {
       width: 14px; height: 14px;
       border: 2px solid rgba(255,255,255,.3);
@@ -143,13 +218,34 @@ _HTML = """\
       border-radius: 50%;
       animation: spin .7s linear infinite;
       display: none;
+      flex-shrink: 0;
     }
 
-    .loading .spinner   { display: block; }
-    .loading .btn-label { display: none; }
+    .is-loading .spinner   { display: block; }
+    .is-loading .btn-label { display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .result { margin-top: 40px; }
+    /* Standalone loading row */
+    .loading-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 18px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .loading-row .dot-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* ── Answer ── */
+    .result { margin-top: 32px; }
 
     .section-label {
       font-size: 0.6875rem;
@@ -191,6 +287,7 @@ _HTML = """\
       font-weight: 500;
     }
 
+    /* ── Error ── */
     .error-box {
       margin-top: 20px;
       padding: 14px 18px;
@@ -201,58 +298,134 @@ _HTML = """\
       font-size: 0.875rem;
     }
 
-    @media (max-width: 480px) {
-      .search-row { flex-direction: column; }
-      .search-row button { justify-content: center; }
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .search-row { flex-wrap: wrap; }
+      .search-row input { flex-basis: 100%; }
+      .btn-search, .btn-clear { flex: 1; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
 <header class="site-header">
-  <h1>bioRAGsearch</h1>
-  <p>Ask questions about your research papers</p>
+  <h1>bio-ragsearch</h1>
+  <p class="subtitle">A personal experiment in RAG &mdash; built to explore how retrieval-augmented
+    generation works using real PhD research papers as a knowledge base. Built with Claude Code.</p>
 </header>
 <hr />
 
 <main>
-  <form id="form" autocomplete="off">
-    <div class="search-row">
-      <input
-        type="text"
-        id="query"
-        placeholder="What is the role of microglia in neuroinflammation?"
-        required
-      />
-      <button type="submit" id="btn">
-        <span class="spinner"></span>
-        <span class="btn-label">Search</span>
-      </button>
+
+  <!-- Papers section -->
+  <section class="papers-section">
+    <h2>Learn about my PhD research</h2>
+    <p class="intro">This tool has been trained on 5 peer-reviewed papers. Ask anything about the research below.</p>
+    <ol class="papers-list">
+      <li>
+        Urquiza, P., La&iacute;n, A., Sanz-Parra, A., Moreno, J., Bernardo-Seisdedos, G., Dubus, P.,
+        Gonz&aacute;lez, E., Guti&eacute;rrez-de-Juan, V., Garc&iacute;a, S., Era&ntilde;a, H., San Juan, I.,
+        Mac&iacute;as, I., Ben Bdira, F., Pluta, P., Ortega, G., Oyarz&aacute;bal, J.,
+        Gonz&aacute;lez-Mu&ntilde;iz, R., Rodr&iacute;guez-Cuesta, J., Anguita, J., D&iacute;ez, E.,
+        Blouin, J.-M., de Verneuil, H., Mato, J. M., Richard, E., Falc&oacute;n-P&eacute;rez, J. M.,
+        Castilla, J., &amp; Millet, O. (2018). Repurposing ciclopirox as a pharmacological chaperone in a
+        model of congenital erythropoietic porphyria. <em>Science Translational Medicine</em>,
+        <em>10</em>(459), eaat7467.
+        <a href="https://doi.org/10.1126/scitranslmed.aat7467" target="_blank" rel="noopener">https://doi.org/10.1126/scitranslmed.aat7467</a>
+      </li>
+      <li>
+        Pluta, P., Roversi, P., Bernardo-Seisdedos, G., Rojas, A. L., Cooper, J. B., Gu, S.,
+        Pickersgill, R. W., &amp; Millet, O. (2018). Structural basis of pyrrole polymerization in human
+        porphobilinogen deaminase. <em>Biochimica et Biophysica Acta (BBA) &mdash; General Subjects</em>,
+        <em>1862</em>(9), 1948&ndash;1955.
+        <a href="https://doi.org/10.1016/j.bbagen.2018.06.013" target="_blank" rel="noopener">https://doi.org/10.1016/j.bbagen.2018.06.013</a>
+      </li>
+      <li>
+        Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., Mart&iacute;nez-Montero, P., Molano, J.,
+        Pa&iacute;no, C. L., Millet, O., &amp; Barrio, L. C. (2018). Directional coupling of
+        oligodendrocyte connexin-47 and astrocyte connexin-43 gap junctions.
+        <em>Glia</em>, <em>66</em>(11), 2340&ndash;2352.
+        <a href="https://doi.org/10.1002/glia.23471" target="_blank" rel="noopener">https://doi.org/10.1002/glia.23471</a>
+      </li>
+      <li>
+        Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., La&iacute;n, A., Sanz-Parra, A.,
+        Falcon-Perez, J. M., &amp; Millet, O. (2014). Tuning intracellular homeostasis of human
+        uroporphyrinogen III synthase by enzyme engineering at a single hotspot of congenital
+        erythropoietic porphyria. <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805&ndash;5813.
+        <a href="https://doi.org/10.1093/hmg/ddu298" target="_blank" rel="noopener">https://doi.org/10.1093/hmg/ddu298</a>
+      </li>
+      <li>
+        Kantari, C., Millet, A., Gabillet, J., Hajjar, E., Broemstrup, T., Pluta, P., Reuter, N.,
+        &amp; Witko-Sarsat, V. (2011). Molecular analysis of the membrane insertion domain of
+        proteinase 3, the Wegener&rsquo;s autoantigen, in RBL cells: Implication for its pathogenic
+        activity. <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941&ndash;950.
+        <a href="https://doi.org/10.1189/jlb.1210695" target="_blank" rel="noopener">https://doi.org/10.1189/jlb.1210695</a>
+      </li>
+    </ol>
+  </section>
+
+  <hr class="section-sep" />
+
+  <!-- Search section -->
+  <section class="search-section">
+    <form id="form" autocomplete="off">
+      <div class="search-row">
+        <input
+          type="text"
+          id="query"
+          placeholder="Ask anything about the research..."
+          required
+        />
+        <button type="submit" id="btn" class="btn-search">
+          <span class="spinner"></span>
+          <span class="btn-label">Search</span>
+        </button>
+        <button type="button" id="btn-clear" class="btn-clear">Clear</button>
+      </div>
+    </form>
+
+    <div id="loading-row" class="loading-row" hidden>
+      <div class="dot-spinner"></div>
+      <span>Generating answer&hellip;</span>
     </div>
-  </form>
 
-  <div id="error" class="error-box" hidden></div>
+    <div id="error" class="error-box" hidden></div>
 
-  <div id="result" class="result" hidden>
-    <div class="section-label">Answer</div>
-    <div class="answer-card" id="answer"></div>
+    <div id="result" class="result" hidden>
+      <div class="section-label">Answer</div>
+      <div class="answer-card" id="answer"></div>
 
-    <div id="sources-block" class="sources-block" hidden>
-      <span class="section-label" style="margin-bottom:0">Sources</span>
-      <div class="tags" id="tags"></div>
+      <div id="sources-block" class="sources-block" hidden>
+        <span class="section-label" style="margin-bottom:0">Sources</span>
+        <div class="tags" id="tags"></div>
+      </div>
     </div>
-  </div>
+  </section>
+
 </main>
 
 <script>
-  const form      = document.getElementById('form');
-  const queryEl   = document.getElementById('query');
-  const btn       = document.getElementById('btn');
-  const errorEl   = document.getElementById('error');
-  const resultEl  = document.getElementById('result');
-  const answerEl  = document.getElementById('answer');
-  const sourcesEl = document.getElementById('sources-block');
-  const tagsEl    = document.getElementById('tags');
+  const form       = document.getElementById('form');
+  const queryEl    = document.getElementById('query');
+  const btn        = document.getElementById('btn');
+  const btnClear   = document.getElementById('btn-clear');
+  const loadingRow = document.getElementById('loading-row');
+  const errorEl    = document.getElementById('error');
+  const resultEl   = document.getElementById('result');
+  const answerEl   = document.getElementById('answer');
+  const sourcesEl  = document.getElementById('sources-block');
+  const tagsEl     = document.getElementById('tags');
+
+  function reset() {
+    queryEl.value = '';
+    errorEl.hidden = true;
+    resultEl.hidden = true;
+    loadingRow.hidden = true;
+    answerEl.textContent = '';
+    tagsEl.innerHTML = '';
+  }
+
+  btnClear.addEventListener('click', reset);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -260,7 +433,9 @@ _HTML = """\
     if (!query) return;
 
     btn.disabled = true;
-    btn.classList.add('loading');
+    btnClear.disabled = true;
+    btn.classList.add('is-loading');
+    loadingRow.hidden = false;
     errorEl.hidden = true;
     resultEl.hidden = true;
 
@@ -299,7 +474,9 @@ _HTML = """\
       errorEl.hidden = false;
     } finally {
       btn.disabled = false;
-      btn.classList.remove('loading');
+      btnClear.disabled = false;
+      btn.classList.remove('is-loading');
+      loadingRow.hidden = true;
     }
   });
 </script>
