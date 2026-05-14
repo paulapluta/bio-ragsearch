@@ -47,7 +47,7 @@ _HTML = """\
   <title>bio-ragsearch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
@@ -65,7 +65,7 @@ _HTML = """\
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Courier New', Courier, monospace;
       background: #fff;
       color: var(--text-1);
       line-height: 1.5;
@@ -79,10 +79,11 @@ _HTML = """\
     }
 
     .site-header h1 {
-      font-size: 1.875rem;
-      font-weight: 700;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      font-weight: 400;
       color: var(--navy);
-      letter-spacing: -0.03em;
+      letter-spacing: 0.06em;
     }
 
     .subtitle {
@@ -150,6 +151,20 @@ _HTML = """\
 
     /* ── Search section ── */
     .search-section { padding: 36px 0 0; }
+
+    .search-heading {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .search-examples {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
 
     .search-row { display: flex; gap: 8px; }
 
@@ -317,7 +332,6 @@ _HTML = """\
   <!-- Papers section -->
   <section class="papers-section">
     <h2>Learn about my PhD research</h2>
-    <p class="intro">This tool has been trained on 5 peer-reviewed papers. Ask anything about the research below.</p>
     <ol class="papers-list">
       <li>
         Urquiza, P., La&iacute;n, A., Sanz-Parra, A., et al. (2018). Repurposing ciclopirox as a
@@ -356,6 +370,8 @@ _HTML = """\
 
   <!-- Search section -->
   <section class="search-section">
+    <h2 class="search-heading">Ask anything about the research</h2>
+    <p class="search-examples">Examples: What is porphyria? What are connexins? How does ciclopirox work?&hellip;</p>
     <form id="form" autocomplete="off">
       <div class="search-row">
         <input
