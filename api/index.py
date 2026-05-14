@@ -59,7 +59,7 @@ _HTML = """\
       --blue-text:  #1D4ED8;
       --text-1:     #1E293B;
       --text-2:     #475569;
-      --text-muted: #94A3B8;
+      --text-muted: #64748B;
       --border:     #E2E8F0;
       --card-bg:    #F8FAFC;
     }
@@ -207,9 +207,9 @@ _HTML = """\
 
     .btn-clear {
       padding: 11px 16px;
-      background: transparent;
+      background: #e8e8e3;
       color: var(--text-2);
-      border: 1.5px solid var(--border);
+      border: 1.5px solid #d4d4cf;
       border-radius: 8px;
       font-family: inherit;
       font-size: 0.875rem;
@@ -219,7 +219,7 @@ _HTML = """\
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
 
-    .btn-clear:hover { background: var(--card-bg); border-color: var(--text-muted); }
+    .btn-clear:hover { background: #deded8; border-color: #c4c4be; }
     .btn-clear:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* Button spinner */
@@ -269,7 +269,7 @@ _HTML = """\
     }
 
     .answer-card {
-      background: var(--card-bg);
+      background: #fff;
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 22px 24px;
@@ -334,33 +334,33 @@ _HTML = """\
     <h2>Learn about my PhD research</h2>
     <ol class="papers-list">
       <li>
-        Urquiza, P., La&iacute;n, A., Sanz-Parra, A., et al. (2018). Repurposing ciclopirox as a
-        pharmacological chaperone in a model of congenital erythropoietic porphyria.
+        Urquiza, P., La&iacute;n, A., Sanz-Parra, A., et al. (2018). <strong>Repurposing ciclopirox as a
+        pharmacological chaperone in a model of congenital erythropoietic porphyria.</strong>
         <em>Science Translational Medicine</em>, <em>10</em>(459), eaat7467.
         <a href="https://doi.org/10.1126/scitranslmed.aat7467" target="_blank" rel="noopener">https://doi.org/10.1126/scitranslmed.aat7467</a>
       </li>
       <li>
-        Pluta, P., Roversi, P., Bernardo-Seisdedos, G., et al. (2018). Structural basis of pyrrole
-        polymerization in human porphobilinogen deaminase.
+        Pluta, P., Roversi, P., Bernardo-Seisdedos, G., et al. (2018). <strong>Structural basis of pyrrole
+        polymerization in human porphobilinogen deaminase.</strong>
         <em>Biochimica et Biophysica Acta (BBA) - General Subjects</em>, <em>1862</em>(9), 1948-1955.
         <a href="https://doi.org/10.1016/j.bbagen.2018.06.013" target="_blank" rel="noopener">https://doi.org/10.1016/j.bbagen.2018.06.013</a>
       </li>
       <li>
-        Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., et al. (2018). Directional coupling of
-        oligodendrocyte connexin-47 and astrocyte connexin-43 gap junctions.
+        Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., et al. (2018). <strong>Directional coupling of
+        oligodendrocyte connexin-47 and astrocyte connexin-43 gap junctions.</strong>
         <em>Glia</em>, <em>66</em>(11), 2340-2352.
         <a href="https://doi.org/10.1002/glia.23471" target="_blank" rel="noopener">https://doi.org/10.1002/glia.23471</a>
       </li>
       <li>
-        Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., et al. (2014). Tuning intracellular homeostasis
+        Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., et al. (2014). <strong>Tuning intracellular homeostasis
         of human uroporphyrinogen III synthase by enzyme engineering at a single hotspot of congenital
-        erythropoietic porphyria. <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805-5813.
+        erythropoietic porphyria.</strong> <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805-5813.
         <a href="https://doi.org/10.1093/hmg/ddu298" target="_blank" rel="noopener">https://doi.org/10.1093/hmg/ddu298</a>
       </li>
       <li>
-        Kantari, C., Millet, A., Gabillet, J., et al. (2011). Molecular analysis of the membrane
+        Kantari, C., Millet, A., Gabillet, J., et al. (2011). <strong>Molecular analysis of the membrane
         insertion domain of proteinase 3, the Wegener's autoantigen, in RBL cells: Implication for
-        its pathogenic activity. <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941-950.
+        its pathogenic activity.</strong> <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941-950.
         <a href="https://doi.org/10.1189/jlb.1210695" target="_blank" rel="noopener">https://doi.org/10.1189/jlb.1210695</a>
       </li>
     </ol>
