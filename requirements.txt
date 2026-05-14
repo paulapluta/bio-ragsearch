@@ -3,3 +3,4 @@ uvicorn[standard]
 pdfplumber
 anthropic
 rank-bm25
+httpx

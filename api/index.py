@@ -2,6 +2,7 @@ import os
 import sys
 
 import anthropic
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -310,6 +311,92 @@ _HTML = """\
       font-size: 0.875rem;
     }
 
+    /* ── PubMed follow-up ── */
+    .pubmed-prompt {
+      margin-top: 24px;
+      padding: 16px 20px;
+      background: var(--blue-bg);
+      border: 1px solid #BFDBFE;
+      border-radius: 10px;
+    }
+
+    .pubmed-prompt p {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .pubmed-prompt-actions { display: flex; align-items: center; gap: 14px; }
+
+    .btn-pubmed {
+      padding: 8px 16px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s;
+    }
+
+    .btn-pubmed:hover:not(:disabled) { background: var(--navy-hover); }
+    .btn-pubmed:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-dismiss {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .btn-dismiss:hover { color: var(--text-2); }
+
+    .pubmed-results { margin-top: 36px; }
+
+    .pubmed-heading {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+    }
+
+    .pubmed-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .pubmed-article {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .pubmed-article a {
+      font-weight: 700;
+      color: var(--navy);
+      text-decoration: none;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .pubmed-article a:hover { text-decoration: underline; }
+
+    .pubmed-article-meta {
+      font-size: 0.8125rem;
+      color: var(--text-2);
+    }
+
     /* ── Responsive ── */
     @media (max-width: 520px) {
       .search-row { flex-wrap: wrap; }
@@ -404,21 +491,57 @@ _HTML = """\
         <div class="tags" id="tags"></div>
       </div>
     </div>
+
+    <!-- PubMed follow-up prompt -->
+    <div id="pubmed-prompt" class="pubmed-prompt" hidden>
+      <p>Want me to search PubMed for related current research on this topic?</p>
+      <div class="pubmed-prompt-actions">
+        <button type="button" id="btn-pubmed" class="btn-pubmed">
+          <span class="spinner"></span>
+          <span class="btn-label">Search PubMed</span>
+        </button>
+        <button type="button" id="btn-dismiss" class="btn-dismiss">No thanks</button>
+      </div>
+    </div>
+
+    <!-- PubMed results -->
+    <div id="pubmed-results" class="pubmed-results" hidden>
+      <div id="pubmed-loading" class="loading-row" hidden>
+        <div class="dot-spinner"></div>
+        <span>Searching PubMed&hellip;</span>
+      </div>
+      <div id="pubmed-error" class="error-box" hidden></div>
+      <div id="pubmed-articles" hidden>
+        <h3 class="pubmed-heading">Related PubMed Literature</h3>
+        <div id="pubmed-list" class="pubmed-list"></div>
+      </div>
+    </div>
   </section>
 
 </main>
 
 <script>
-  const form       = document.getElementById('form');
-  const queryEl    = document.getElementById('query');
-  const btn        = document.getElementById('btn');
-  const btnClear   = document.getElementById('btn-clear');
-  const loadingRow = document.getElementById('loading-row');
-  const errorEl    = document.getElementById('error');
-  const resultEl   = document.getElementById('result');
-  const answerEl   = document.getElementById('answer');
-  const sourcesEl  = document.getElementById('sources-block');
-  const tagsEl     = document.getElementById('tags');
+  // RAG search elements
+  const form          = document.getElementById('form');
+  const queryEl       = document.getElementById('query');
+  const btn           = document.getElementById('btn');
+  const btnClear      = document.getElementById('btn-clear');
+  const loadingRow    = document.getElementById('loading-row');
+  const errorEl       = document.getElementById('error');
+  const resultEl      = document.getElementById('result');
+  const answerEl      = document.getElementById('answer');
+  const sourcesEl     = document.getElementById('sources-block');
+  const tagsEl        = document.getElementById('tags');
+
+  // PubMed elements
+  const pubmedPrompt   = document.getElementById('pubmed-prompt');
+  const btnPubmed      = document.getElementById('btn-pubmed');
+  const btnDismiss     = document.getElementById('btn-dismiss');
+  const pubmedResults  = document.getElementById('pubmed-results');
+  const pubmedLoading  = document.getElementById('pubmed-loading');
+  const pubmedError    = document.getElementById('pubmed-error');
+  const pubmedArticles = document.getElementById('pubmed-articles');
+  const pubmedList     = document.getElementById('pubmed-list');
 
   function reset() {
     queryEl.value = '';
@@ -427,9 +550,65 @@ _HTML = """\
     loadingRow.hidden = true;
     answerEl.textContent = '';
     tagsEl.innerHTML = '';
+    pubmedPrompt.hidden = true;
+    pubmedResults.hidden = true;
+    pubmedList.innerHTML = '';
   }
 
   btnClear.addEventListener('click', reset);
+
+  btnDismiss.addEventListener('click', () => {
+    pubmedPrompt.hidden = true;
+  });
+
+  btnPubmed.addEventListener('click', async () => {
+    pubmedPrompt.hidden = true;
+    pubmedResults.hidden = false;
+    pubmedLoading.hidden = false;
+    pubmedError.hidden = true;
+    pubmedArticles.hidden = true;
+    btnPubmed.disabled = true;
+    btnPubmed.classList.add('is-loading');
+
+    try {
+      const res = await fetch('/pubmed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: queryEl.value.trim() }),
+      });
+
+      let data;
+      try { data = await res.json(); } catch { data = {}; }
+
+      if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
+
+      pubmedList.innerHTML = '';
+      if (!data.articles?.length) {
+        pubmedError.textContent = 'No related articles found on PubMed for this query.';
+        pubmedError.hidden = false;
+      } else {
+        data.articles.forEach(article => {
+          const el = document.createElement('div');
+          el.className = 'pubmed-article';
+          const safetitle = article.title.replace(/</g, '&lt;');
+          const safeauthors = article.authors.replace(/</g, '&lt;');
+          const safejournal = article.journal.replace(/</g, '&lt;');
+          el.innerHTML =
+            `<a href="${article.url}" target="_blank" rel="noopener">${safetitle}</a>` +
+            `<div class="pubmed-article-meta">${safeauthors} (${article.year}). <em>${safejournal}</em></div>`;
+          pubmedList.appendChild(el);
+        });
+        pubmedArticles.hidden = false;
+      }
+    } catch (err) {
+      pubmedError.textContent = err.message || 'Failed to fetch PubMed results. Please try again.';
+      pubmedError.hidden = false;
+    } finally {
+      pubmedLoading.hidden = true;
+      btnPubmed.disabled = false;
+      btnPubmed.classList.remove('is-loading');
+    }
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -442,6 +621,9 @@ _HTML = """\
     loadingRow.hidden = false;
     errorEl.hidden = true;
     resultEl.hidden = true;
+    pubmedPrompt.hidden = true;
+    pubmedResults.hidden = true;
+    pubmedList.innerHTML = '';
 
     try {
       const res = await fetch('/search', {
@@ -473,6 +655,7 @@ _HTML = """\
       }
 
       resultEl.hidden = false;
+      pubmedPrompt.hidden = false;
     } catch (err) {
       errorEl.textContent = err.message || 'Something went wrong. Please try again.';
       errorEl.hidden = false;
@@ -520,6 +703,59 @@ async def debug():
 @app.get("/papers")
 async def list_papers():
     return {"count": len(_papers), "papers": _papers}
+
+
+@app.post("/pubmed")
+async def search_pubmed(req: SearchRequest):
+    query = req.query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
+    base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+    params = {"tool": "bioragsearch", "email": "research@bioragsearch.app"}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        # Step 1: get PubMed IDs for the query
+        search_resp = await client.get(
+            f"{base}/esearch.fcgi",
+            params={**params, "db": "pubmed", "term": query, "retmax": 5, "retmode": "json"},
+        )
+        search_resp.raise_for_status()
+        ids = search_resp.json().get("esearchresult", {}).get("idlist", [])
+
+        if not ids:
+            return {"articles": []}
+
+        # Step 2: fetch summaries for those IDs
+        summary_resp = await client.get(
+            f"{base}/esummary.fcgi",
+            params={**params, "db": "pubmed", "id": ",".join(ids), "retmode": "json"},
+        )
+        summary_resp.raise_for_status()
+        result = summary_resp.json().get("result", {})
+
+    articles = []
+    for pmid in ids:
+        doc = result.get(pmid)
+        if not doc:
+            continue
+        raw_authors = [a.get("name", "") for a in doc.get("authors", [])]
+        if len(raw_authors) > 3:
+            authors = ", ".join(raw_authors[:3]) + ", et al."
+        else:
+            authors = ", ".join(raw_authors)
+        pub_date = doc.get("pubdate", "")
+        year = pub_date[:4] if pub_date else ""
+        articles.append({
+            "pmid": pmid,
+            "title": doc.get("title", "").rstrip("."),
+            "authors": authors,
+            "year": year,
+            "journal": doc.get("source", ""),
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+        })
+
+    return {"articles": articles}
 
 
 @app.post("/search")
