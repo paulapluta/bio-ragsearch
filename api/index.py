@@ -47,7 +47,7 @@ _HTML = """\
   <title>bio-ragsearch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
@@ -65,8 +65,8 @@ _HTML = """\
     }
 
     body {
-      font-family: 'Courier New', Courier, monospace;
-      background: #fff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f0;
       color: var(--text-1);
       line-height: 1.5;
       min-height: 100vh;
