@@ -5,12 +5,16 @@ import anthropic
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from rank_bm25 import BM25Okapi
 
 app = FastAPI()
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
+_PUBLIC_DIR = os.path.join(os.path.dirname(_HERE), "public")
+if os.path.isdir(_PUBLIC_DIR):
+    app.mount("/public", StaticFiles(directory=_PUBLIC_DIR), name="public")
 
 # Ensure the api/ directory is on sys.path so `papers_data` can be imported.
 # Vercel bundles Python source imports automatically, making this more reliable
@@ -311,37 +315,49 @@ _HTML = """\
       font-size: 0.875rem;
     }
 
-    /* ── PubMed follow-up ── */
+    /* ── PubMed robot card ── */
     .pubmed-prompt {
-      margin-top: 24px;
-      padding: 16px 20px;
+      margin-top: 20px;
+      padding: 14px 18px;
       background: var(--blue-bg);
       border: 1px solid #BFDBFE;
       border-radius: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
     }
 
-    .pubmed-prompt p {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--navy);
-      margin-bottom: 12px;
+    .robot-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
-    .pubmed-prompt-actions { display: flex; align-items: center; gap: 14px; }
+    .pubmed-prompt-body { flex: 1; min-width: 0; }
+
+    .pubmed-prompt-body p {
+      font-size: 0.875rem;
+      color: var(--text-1);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .pubmed-prompt-actions { display: flex; gap: 8px; }
 
     .btn-pubmed {
-      padding: 8px 16px;
+      padding: 5px 16px;
       background: var(--navy);
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 999px;
       font-family: inherit;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       transition: background 0.15s;
     }
 
@@ -349,17 +365,19 @@ _HTML = """\
     .btn-pubmed:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .btn-dismiss {
-      background: none;
-      border: none;
+      padding: 5px 16px;
+      background: transparent;
+      color: var(--text-2);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
       font-family: inherit;
-      font-size: 0.875rem;
-      color: var(--text-muted);
+      font-size: 0.8125rem;
+      font-weight: 500;
       cursor: pointer;
-      text-decoration: underline;
-      padding: 0;
+      transition: background 0.15s, border-color 0.15s;
     }
 
-    .btn-dismiss:hover { color: var(--text-2); }
+    .btn-dismiss:hover { background: #e8e8e3; border-color: #c4c4be; }
 
     .pubmed-results { margin-top: 36px; }
 
@@ -492,15 +510,18 @@ _HTML = """\
       </div>
     </div>
 
-    <!-- PubMed follow-up prompt -->
+    <!-- PubMed robot suggestion card -->
     <div id="pubmed-prompt" class="pubmed-prompt" hidden>
-      <p>Want me to search PubMed for related current research on this topic?</p>
-      <div class="pubmed-prompt-actions">
-        <button type="button" id="btn-pubmed" class="btn-pubmed">
-          <span class="spinner"></span>
-          <span class="btn-label">Search PubMed</span>
-        </button>
-        <button type="button" id="btn-dismiss" class="btn-dismiss">No thanks</button>
+      <img src="/public/robot.png" alt="AI" class="robot-icon" />
+      <div class="pubmed-prompt-body">
+        <p>Want me to search PubMed for related current research on this topic?</p>
+        <div class="pubmed-prompt-actions">
+          <button type="button" id="btn-pubmed" class="btn-pubmed">
+            <span class="spinner"></span>
+            <span class="btn-label">Yes</span>
+          </button>
+          <button type="button" id="btn-dismiss" class="btn-dismiss">No</button>
+        </div>
       </div>
     </div>
 
@@ -512,7 +533,7 @@ _HTML = """\
       </div>
       <div id="pubmed-error" class="error-box" hidden></div>
       <div id="pubmed-articles" hidden>
-        <h3 class="pubmed-heading">Related PubMed Literature</h3>
+        <h3 class="pubmed-heading">PubMed Literature</h3>
         <div id="pubmed-list" class="pubmed-list"></div>
       </div>
     </div>
