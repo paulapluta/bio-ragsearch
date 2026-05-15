@@ -655,9 +655,9 @@ _HTML = """\
       if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
 
       answerEl.innerHTML = '';
-      (data.answer ?? '').trim().split(/\n{2,}/).forEach(para => {
+      (data.answer ?? '').trim().split(/\\n{2,}/).forEach(para => {
         const p = document.createElement('p');
-        p.textContent = para.replace(/\n/g, ' ').trim();
+        p.textContent = para.replace(/\\n/g, ' ').trim();
         answerEl.appendChild(p);
       });
       tagsEl.innerHTML = '';
