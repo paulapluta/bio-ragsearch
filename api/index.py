@@ -79,7 +79,7 @@ _HTML = """\
 
     /* ── Header ── */
     .site-header {
-      padding: 52px 24px 40px;
+      padding: 28px 24px 20px;
       text-align: center;
     }
 
@@ -108,7 +108,7 @@ _HTML = """\
 
     /* ── Papers section ── */
     .papers-section {
-      padding: 40px 0 36px;
+      padding: 24px 0 28px;
     }
 
     .papers-section h2 {
@@ -155,7 +155,7 @@ _HTML = """\
     }
 
     /* ── Search section ── */
-    .search-section { padding: 36px 0 0; }
+    .search-section { padding: 24px 0 0; }
 
     .search-heading {
       font-size: 1.125rem;
@@ -278,12 +278,16 @@ _HTML = """\
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 22px 24px;
-      font-size: 1rem;
-      line-height: 1.65;
-      color: var(--text-1);
-      white-space: pre-line;
-      word-break: break-word;
     }
+
+    .answer-card p {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--text-1);
+      margin: 0;
+    }
+
+    .answer-card p + p { margin-top: 1em; }
 
     .sources-block {
       margin-top: 20px;
@@ -323,14 +327,22 @@ _HTML = """\
       border: 1px solid #BFDBFE;
       border-radius: 10px;
       display: flex;
-      align-items: flex-start;
+      align-items: stretch;
       gap: 12px;
+      transition: opacity 0.2s;
+    }
+
+    .agent-card.disabled {
+      opacity: 0.45;
+      pointer-events: none;
     }
 
     .robot-icon {
-      width: 48px;
-      height: 48px;
+      width: 64px;
+      height: 64px;
       flex-shrink: 0;
+      object-fit: contain;
+      align-self: center;
     }
 
     .agent-card-body { flex: 1; min-width: 0; }
@@ -538,6 +550,7 @@ _HTML = """\
   const answerEl     = document.getElementById('answer');
   const sourcesEl    = document.getElementById('sources-block');
   const tagsEl       = document.getElementById('tags');
+  const agentCard    = document.querySelector('.agent-card');
 
   // Agent toggle
   const btnYes       = document.getElementById('btn-yes');
@@ -565,7 +578,7 @@ _HTML = """\
     errorEl.hidden = true;
     resultEl.hidden = true;
     loadingRow.hidden = true;
-    answerEl.textContent = '';
+    answerEl.innerHTML = '';
     tagsEl.innerHTML = '';
     pubmedResults.hidden = true;
     pubmedList.innerHTML = '';
@@ -623,6 +636,7 @@ _HTML = """\
 
     btn.disabled = true;
     btnClear.disabled = true;
+    agentCard.classList.add('disabled');
     btn.classList.add('is-loading');
     loadingRow.hidden = false;
     errorEl.hidden = true;
@@ -640,7 +654,12 @@ _HTML = """\
       try { data = await res.json(); } catch { data = {}; }
       if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
 
-      answerEl.textContent = data.answer ?? '';
+      answerEl.innerHTML = '';
+      (data.answer ?? '').trim().split(/\n{2,}/).forEach(para => {
+        const p = document.createElement('p');
+        p.textContent = para.replace(/\n/g, ' ').trim();
+        answerEl.appendChild(p);
+      });
       tagsEl.innerHTML = '';
       if (data.sources?.length) {
         data.sources.forEach(src => {
@@ -662,6 +681,7 @@ _HTML = """\
     } finally {
       btn.disabled = false;
       btnClear.disabled = false;
+      agentCard.classList.remove('disabled');
       btn.classList.remove('is-loading');
       loadingRow.hidden = true;
     }
