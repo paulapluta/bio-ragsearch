@@ -58,11 +58,11 @@ _HTML = """\
 <body>
 
 <header class="site-header">
-  <p class="header-eyebrow">RAG &middot; Agent &middot; MCP &middot; Research Tool</p>
+  <p class="header-eyebrow">RAG &middot; Agent &middot; MCP &middot; Research Assistant</p>
   <h1 class="site-title">bio-ragsearch</h1>
-  <p class="site-subtitle">A personal experiment in RAG, agent, and MCP - built to explore how
-    retrieval-augmented generation, agentic behavior, and live data retrieval work together
-    using research papers. Built with Claude Code.</p>
+  <p class="site-subtitle">An experiment in RAG, agents, and MCP - exploring how retrieval-augmented
+    generation, agentic behavior, and live data retrieval work together.
+    Built with Claude Code and Railway.</p>
 </header>
 
 <main class="main">
