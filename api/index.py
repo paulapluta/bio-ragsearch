@@ -315,9 +315,9 @@ _HTML = """\
       font-size: 0.875rem;
     }
 
-    /* ── PubMed robot card ── */
-    .pubmed-prompt {
-      margin-top: 20px;
+    /* ── PubMed agent card ── */
+    .agent-card {
+      margin-top: 16px;
       padding: 14px 18px;
       background: var(--blue-bg);
       border: 1px solid #BFDBFE;
@@ -331,53 +331,41 @@ _HTML = """\
       width: 28px;
       height: 28px;
       flex-shrink: 0;
-      margin-top: 1px;
+      margin-top: 2px;
     }
 
-    .pubmed-prompt-body { flex: 1; min-width: 0; }
+    .agent-card-body { flex: 1; min-width: 0; }
 
-    .pubmed-prompt-body p {
+    .agent-card-body p {
       font-size: 0.875rem;
       color: var(--text-1);
       margin-bottom: 10px;
       line-height: 1.5;
     }
 
-    .pubmed-prompt-actions { display: flex; gap: 8px; }
+    .toggle-group { display: flex; gap: 8px; }
 
-    .btn-pubmed {
-      padding: 5px 16px;
-      background: var(--navy);
-      color: #fff;
-      border: none;
-      border-radius: 999px;
-      font-family: inherit;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s;
-    }
-
-    .btn-pubmed:hover:not(:disabled) { background: var(--navy-hover); }
-    .btn-pubmed:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-dismiss {
-      padding: 5px 16px;
-      background: transparent;
-      color: var(--text-2);
-      border: 1.5px solid var(--border);
+    .btn-toggle {
+      padding: 5px 18px;
       border-radius: 999px;
       font-family: inherit;
       font-size: 0.8125rem;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
 
-    .btn-dismiss:hover { background: #e8e8e3; border-color: #c4c4be; }
+    .btn-toggle.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+      font-weight: 600;
+    }
+
+    .btn-toggle:not(.active):hover { background: #e8e8e3; border-color: #c4c4be; }
 
     .pubmed-results { margin-top: 36px; }
 
@@ -510,17 +498,14 @@ _HTML = """\
       </div>
     </div>
 
-    <!-- PubMed robot suggestion card -->
-    <div id="pubmed-prompt" class="pubmed-prompt" hidden>
+    <!-- PubMed agent card — always visible -->
+    <div class="agent-card">
       <img src="/public/robot.png" alt="AI" class="robot-icon" />
-      <div class="pubmed-prompt-body">
-        <p>Want me to search PubMed for related current research on this topic?</p>
-        <div class="pubmed-prompt-actions">
-          <button type="button" id="btn-pubmed" class="btn-pubmed">
-            <span class="spinner"></span>
-            <span class="btn-label">Yes</span>
-          </button>
-          <button type="button" id="btn-dismiss" class="btn-dismiss">No</button>
+      <div class="agent-card-body">
+        <p>Want me to also search PubMed for related current research?</p>
+        <div class="toggle-group">
+          <button type="button" id="btn-yes" class="btn-toggle">Yes</button>
+          <button type="button" id="btn-no" class="btn-toggle active">No</button>
         </div>
       </div>
     </div>
@@ -542,27 +527,38 @@ _HTML = """\
 </main>
 
 <script>
-  // RAG search elements
-  const form          = document.getElementById('form');
-  const queryEl       = document.getElementById('query');
-  const btn           = document.getElementById('btn');
-  const btnClear      = document.getElementById('btn-clear');
-  const loadingRow    = document.getElementById('loading-row');
-  const errorEl       = document.getElementById('error');
-  const resultEl      = document.getElementById('result');
-  const answerEl      = document.getElementById('answer');
-  const sourcesEl     = document.getElementById('sources-block');
-  const tagsEl        = document.getElementById('tags');
+  // RAG elements
+  const form         = document.getElementById('form');
+  const queryEl      = document.getElementById('query');
+  const btn          = document.getElementById('btn');
+  const btnClear     = document.getElementById('btn-clear');
+  const loadingRow   = document.getElementById('loading-row');
+  const errorEl      = document.getElementById('error');
+  const resultEl     = document.getElementById('result');
+  const answerEl     = document.getElementById('answer');
+  const sourcesEl    = document.getElementById('sources-block');
+  const tagsEl       = document.getElementById('tags');
 
-  // PubMed elements
-  const pubmedPrompt   = document.getElementById('pubmed-prompt');
-  const btnPubmed      = document.getElementById('btn-pubmed');
-  const btnDismiss     = document.getElementById('btn-dismiss');
+  // Agent toggle
+  const btnYes       = document.getElementById('btn-yes');
+  const btnNo        = document.getElementById('btn-no');
+  let pubmedEnabled  = false;
+
+  // PubMed results elements
   const pubmedResults  = document.getElementById('pubmed-results');
   const pubmedLoading  = document.getElementById('pubmed-loading');
   const pubmedError    = document.getElementById('pubmed-error');
   const pubmedArticles = document.getElementById('pubmed-articles');
   const pubmedList     = document.getElementById('pubmed-list');
+
+  function setToggle(enabled) {
+    pubmedEnabled = enabled;
+    btnYes.classList.toggle('active', enabled);
+    btnNo.classList.toggle('active', !enabled);
+  }
+
+  btnYes.addEventListener('click', () => setToggle(true));
+  btnNo.addEventListener('click',  () => setToggle(false));
 
   function reset() {
     queryEl.value = '';
@@ -571,39 +567,30 @@ _HTML = """\
     loadingRow.hidden = true;
     answerEl.textContent = '';
     tagsEl.innerHTML = '';
-    pubmedPrompt.hidden = true;
     pubmedResults.hidden = true;
     pubmedList.innerHTML = '';
+    setToggle(false);
   }
 
   btnClear.addEventListener('click', reset);
 
-  btnDismiss.addEventListener('click', () => {
-    pubmedPrompt.hidden = true;
-  });
-
-  btnPubmed.addEventListener('click', async () => {
-    pubmedPrompt.hidden = true;
+  async function fetchPubmed(query) {
     pubmedResults.hidden = false;
     pubmedLoading.hidden = false;
     pubmedError.hidden = true;
     pubmedArticles.hidden = true;
-    btnPubmed.disabled = true;
-    btnPubmed.classList.add('is-loading');
+    pubmedList.innerHTML = '';
 
     try {
       const res = await fetch('/pubmed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: queryEl.value.trim() }),
+        body: JSON.stringify({ query }),
       });
-
       let data;
       try { data = await res.json(); } catch { data = {}; }
-
       if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
 
-      pubmedList.innerHTML = '';
       if (!data.articles?.length) {
         pubmedError.textContent = 'No related articles found on PubMed for this query.';
         pubmedError.hidden = false;
@@ -611,25 +598,23 @@ _HTML = """\
         data.articles.forEach(article => {
           const el = document.createElement('div');
           el.className = 'pubmed-article';
-          const safetitle = article.title.replace(/</g, '&lt;');
-          const safeauthors = article.authors.replace(/</g, '&lt;');
-          const safejournal = article.journal.replace(/</g, '&lt;');
+          const t = article.title.replace(/</g, '&lt;');
+          const a = article.authors.replace(/</g, '&lt;');
+          const j = article.journal.replace(/</g, '&lt;');
           el.innerHTML =
-            `<a href="${article.url}" target="_blank" rel="noopener">${safetitle}</a>` +
-            `<div class="pubmed-article-meta">${safeauthors} (${article.year}). <em>${safejournal}</em></div>`;
+            `<a href="${article.url}" target="_blank" rel="noopener">${t}</a>` +
+            `<div class="pubmed-article-meta">${a} (${article.year}). <em>${j}</em></div>`;
           pubmedList.appendChild(el);
         });
         pubmedArticles.hidden = false;
       }
     } catch (err) {
-      pubmedError.textContent = err.message || 'Failed to fetch PubMed results. Please try again.';
+      pubmedError.textContent = err.message || 'Failed to fetch PubMed results.';
       pubmedError.hidden = false;
     } finally {
       pubmedLoading.hidden = true;
-      btnPubmed.disabled = false;
-      btnPubmed.classList.remove('is-loading');
     }
-  });
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -642,7 +627,6 @@ _HTML = """\
     loadingRow.hidden = false;
     errorEl.hidden = true;
     resultEl.hidden = true;
-    pubmedPrompt.hidden = true;
     pubmedResults.hidden = true;
     pubmedList.innerHTML = '';
 
@@ -652,16 +636,11 @@ _HTML = """\
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
       });
-
       let data;
       try { data = await res.json(); } catch { data = {}; }
-
-      if (!res.ok) {
-        throw new Error(data.detail || `Error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
 
       answerEl.textContent = data.answer ?? '';
-
       tagsEl.innerHTML = '';
       if (data.sources?.length) {
         data.sources.forEach(src => {
@@ -674,9 +653,9 @@ _HTML = """\
       } else {
         sourcesEl.hidden = true;
       }
-
       resultEl.hidden = false;
-      pubmedPrompt.hidden = false;
+
+      if (pubmedEnabled) await fetchPubmed(query);
     } catch (err) {
       errorEl.textContent = err.message || 'Something went wrong. Please try again.';
       errorEl.hidden = false;
