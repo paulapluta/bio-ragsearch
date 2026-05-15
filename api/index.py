@@ -53,484 +53,135 @@ _HTML = """\
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    [hidden] { display: none !important; }
-
-    :root {
-      --navy:       #0C1F3F;
-      --navy-hover: #162E5A;
-      --blue-bg:    #EFF6FF;
-      --blue-text:  #1D4ED8;
-      --text-1:     #1E293B;
-      --text-2:     #475569;
-      --text-muted: #64748B;
-      --border:     #E2E8F0;
-      --card-bg:    #F8FAFC;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f5f0;
-      color: var(--text-1);
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
-    .site-header {
-      padding: 28px 24px 20px;
-      text-align: center;
-    }
-
-    .site-header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 3rem;
-      font-weight: 400;
-      color: var(--navy);
-      letter-spacing: 0.06em;
-    }
-
-    .subtitle {
-      margin-top: 12px;
-      font-size: 0.9375rem;
-      color: var(--text-2);
-      line-height: 1.65;
-    }
-
-    hr { border: none; border-top: 1px solid var(--border); }
-
-    /* ── Main layout ── */
-    main {
-      width: 100%;
-      padding: 0 32px 96px;
-    }
-
-    /* ── Papers section ── */
-    .papers-section {
-      padding: 24px 0 28px;
-    }
-
-    .papers-section h2 {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
-
-    .intro {
-      font-size: 0.875rem;
-      color: var(--text-2);
-      margin-bottom: 20px;
-    }
-
-    .papers-list {
-      list-style: decimal;
-      padding-left: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .papers-list li {
-      font-size: 0.8125rem;
-      color: var(--text-2);
-      line-height: 1.65;
-    }
-
-    .papers-list a {
-      color: var(--blue-text);
-      text-decoration: none;
-      word-break: break-all;
-    }
-
-    .papers-list a:hover { text-decoration: underline; }
-
-    /* ── Section separator ── */
-    .section-sep {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0;
-    }
-
-    /* ── Search section ── */
-    .search-section { padding: 24px 0 0; }
-
-    .search-heading {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: -0.01em;
-      margin-bottom: 6px;
-    }
-
-    .search-examples {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      margin-bottom: 18px;
-    }
-
-    .search-row { display: flex; gap: 8px; }
-
-    .search-row input {
-      flex: 1;
-      min-width: 0;
-      padding: 11px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9375rem;
-      color: var(--text-1);
-      outline: none;
-      transition: border-color 0.15s;
-      background: #fff;
-    }
-
-    .search-row input:focus { border-color: var(--navy); }
-    .search-row input::placeholder { color: var(--text-muted); }
-
-    .btn-search {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 11px 20px;
-      background: var(--navy);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s, opacity 0.15s;
-    }
-
-    .btn-search:hover:not(:disabled) { background: var(--navy-hover); }
-    .btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-clear {
-      padding: 11px 16px;
-      background: #e8e8e3;
-      color: var(--text-2);
-      border: 1.5px solid #d4d4cf;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-    }
-
-    .btn-clear:hover { background: #deded8; border-color: #c4c4be; }
-    .btn-clear:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* Button spinner */
-    .spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: none;
-      flex-shrink: 0;
-    }
-
-    .is-loading .spinner   { display: block; }
-    .is-loading .btn-label { display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Standalone loading row */
-    .loading-row {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      margin-top: 18px;
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-
-    .loading-row .dot-spinner {
-      width: 16px; height: 16px;
-      border: 2px solid var(--border);
-      border-top-color: var(--navy);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      flex-shrink: 0;
-    }
-
-    /* ── Answer ── */
-    .result { margin-top: 32px; }
-
-    .section-label {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    .answer-card {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 22px 24px;
-    }
-
-    .answer-card p {
-      font-size: 1rem;
-      line-height: 1.5;
-      color: var(--text-1);
-      margin: 0;
-    }
-
-    .answer-card p + p { margin-top: 1em; }
-
-    .sources-block {
-      margin-top: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .tag {
-      padding: 3px 12px;
-      background: var(--blue-bg);
-      color: var(--blue-text);
-      border-radius: 999px;
-      font-size: 0.8125rem;
-      font-weight: 500;
-    }
-
-    /* ── Error ── */
-    .error-box {
-      margin-top: 20px;
-      padding: 14px 18px;
-      background: #FEF2F2;
-      border: 1px solid #FECACA;
-      border-radius: 8px;
-      color: #B91C1C;
-      font-size: 0.875rem;
-    }
-
-    /* ── PubMed agent card ── */
-    .agent-card {
-      margin-top: 16px;
-      padding: 14px 18px;
-      background: var(--blue-bg);
-      border: 1px solid #BFDBFE;
-      border-radius: 10px;
-      display: flex;
-      align-items: stretch;
-      gap: 12px;
-      transition: opacity 0.2s;
-    }
-
-    .agent-card.disabled {
-      opacity: 0.45;
-      pointer-events: none;
-    }
-
-    .robot-icon {
-      width: 64px;
-      height: 64px;
-      flex-shrink: 0;
-      object-fit: contain;
-      align-self: center;
-    }
-
-    .agent-card-body { flex: 1; min-width: 0; }
-
-    .agent-card-body p {
-      font-size: 0.875rem;
-      color: var(--text-1);
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-
-    .toggle-group { display: flex; gap: 8px; }
-
-    .btn-toggle {
-      padding: 5px 18px;
-      border-radius: 999px;
-      font-family: inherit;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1.5px solid var(--border);
-      background: transparent;
-      color: var(--text-2);
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
-    }
-
-    .btn-toggle.active {
-      background: var(--navy);
-      color: #fff;
-      border-color: var(--navy);
-      font-weight: 600;
-    }
-
-    .btn-toggle:not(.active):hover { background: #e8e8e3; border-color: #c4c4be; }
-
-    .pubmed-results { margin-top: 36px; }
-
-    .pubmed-heading {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: -0.01em;
-      margin-bottom: 16px;
-    }
-
-    .pubmed-list { display: flex; flex-direction: column; gap: 12px; }
-
-    .pubmed-article {
-      background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px 18px;
-    }
-
-    .pubmed-article a {
-      font-weight: 700;
-      color: var(--navy);
-      text-decoration: none;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .pubmed-article a:hover { text-decoration: underline; }
-
-    .pubmed-article-meta {
-      font-size: 0.8125rem;
-      color: var(--text-2);
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 520px) {
-      .search-row { flex-wrap: wrap; }
-      .search-row input { flex-basis: 100%; }
-      .btn-search, .btn-clear { flex: 1; justify-content: center; }
-    }
-  </style>
+  <link rel="stylesheet" href="/public/bio-ragsearch.css" />
 </head>
 <body>
 
 <header class="site-header">
-  <h1>bio-ragsearch</h1>
-  <p class="subtitle">A personal experiment in RAG, agent, and MCP - built to explore how
+  <p class="header-eyebrow">RAG &middot; Agent &middot; MCP &middot; Research Tool</p>
+  <h1 class="site-title">bio-ragsearch</h1>
+  <p class="site-subtitle">A personal experiment in RAG, agent, and MCP - built to explore how
     retrieval-augmented generation, agentic behavior, and live data retrieval work together
     using research papers. Built with Claude Code.</p>
 </header>
-<hr />
 
-<main>
+<main class="main">
 
-  <!-- Papers section -->
-  <section class="papers-section">
-    <h2>Learn about my PhD research</h2>
-    <ol class="papers-list">
-      <li>
-        Urquiza, P., La&iacute;n, A., Sanz-Parra, A., et al. (2018). <strong>Repurposing ciclopirox as a
-        pharmacological chaperone in a model of congenital erythropoietic porphyria.</strong>
-        <em>Science Translational Medicine</em>, <em>10</em>(459), eaat7467.
-        <a href="https://doi.org/10.1126/scitranslmed.aat7467" target="_blank" rel="noopener">https://doi.org/10.1126/scitranslmed.aat7467</a>
-      </li>
-      <li>
-        Pluta, P., Roversi, P., Bernardo-Seisdedos, G., et al. (2018). <strong>Structural basis of pyrrole
-        polymerization in human porphobilinogen deaminase.</strong>
-        <em>Biochimica et Biophysica Acta (BBA) - General Subjects</em>, <em>1862</em>(9), 1948-1955.
-        <a href="https://doi.org/10.1016/j.bbagen.2018.06.013" target="_blank" rel="noopener">https://doi.org/10.1016/j.bbagen.2018.06.013</a>
-      </li>
-      <li>
-        Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., et al. (2018). <strong>Directional coupling of
-        oligodendrocyte connexin-47 and astrocyte connexin-43 gap junctions.</strong>
-        <em>Glia</em>, <em>66</em>(11), 2340-2352.
-        <a href="https://doi.org/10.1002/glia.23471" target="_blank" rel="noopener">https://doi.org/10.1002/glia.23471</a>
-      </li>
-      <li>
-        Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., et al. (2014). <strong>Tuning intracellular homeostasis
-        of human uroporphyrinogen III synthase by enzyme engineering at a single hotspot of congenital
-        erythropoietic porphyria.</strong> <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805-5813.
-        <a href="https://doi.org/10.1093/hmg/ddu298" target="_blank" rel="noopener">https://doi.org/10.1093/hmg/ddu298</a>
-      </li>
-      <li>
-        Kantari, C., Millet, A., Gabillet, J., et al. (2011). <strong>Molecular analysis of the membrane
-        insertion domain of proteinase 3, the Wegener's autoantigen, in RBL cells: Implication for
-        its pathogenic activity.</strong> <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941-950.
-        <a href="https://doi.org/10.1189/jlb.1210695" target="_blank" rel="noopener">https://doi.org/10.1189/jlb.1210695</a>
-      </li>
-    </ol>
+  <!-- Papers section card -->
+  <section class="section-card">
+    <div class="section-card-header">
+      <h2 class="section-heading">Learn about my PhD research</h2>
+    </div>
+    <div class="section-card-body">
+      <ol class="papers-list">
+        <li>
+          Urquiza, P., La&iacute;n, A., Sanz-Parra, A., et al. (2018). <strong>Repurposing ciclopirox as a
+          pharmacological chaperone in a model of congenital erythropoietic porphyria.</strong>
+          <em>Science Translational Medicine</em>, <em>10</em>(459), eaat7467.
+          <a href="https://doi.org/10.1126/scitranslmed.aat7467" target="_blank" rel="noopener">https://doi.org/10.1126/scitranslmed.aat7467</a>
+        </li>
+        <li>
+          Pluta, P., Roversi, P., Bernardo-Seisdedos, G., et al. (2018). <strong>Structural basis of pyrrole
+          polymerization in human porphobilinogen deaminase.</strong>
+          <em>Biochimica et Biophysica Acta (BBA) - General Subjects</em>, <em>1862</em>(9), 1948-1955.
+          <a href="https://doi.org/10.1016/j.bbagen.2018.06.013" target="_blank" rel="noopener">https://doi.org/10.1016/j.bbagen.2018.06.013</a>
+        </li>
+        <li>
+          Fasciani, I., Pluta, P., Gonz&aacute;lez-Nieto, D., et al. (2018). <strong>Directional coupling of
+          oligodendrocyte connexin-47 and astrocyte connexin-43 gap junctions.</strong>
+          <em>Glia</em>, <em>66</em>(11), 2340-2352.
+          <a href="https://doi.org/10.1002/glia.23471" target="_blank" rel="noopener">https://doi.org/10.1002/glia.23471</a>
+        </li>
+        <li>
+          Ben Bdira, F., Gonz&aacute;lez, E., Pluta, P., et al. (2014). <strong>Tuning intracellular homeostasis
+          of human uroporphyrinogen III synthase by enzyme engineering at a single hotspot of congenital
+          erythropoietic porphyria.</strong>
+          <em>Human Molecular Genetics</em>, <em>23</em>(21), 5805-5813.
+          <a href="https://doi.org/10.1093/hmg/ddu298" target="_blank" rel="noopener">https://doi.org/10.1093/hmg/ddu298</a>
+        </li>
+        <li>
+          Kantari, C., Millet, A., Gabillet, J., et al. (2011). <strong>Molecular analysis of the membrane
+          insertion domain of proteinase 3, the Wegener's autoantigen, in RBL cells: Implication for
+          its pathogenic activity.</strong>
+          <em>Journal of Leukocyte Biology</em>, <em>90</em>(5), 941-950.
+          <a href="https://doi.org/10.1189/jlb.1210695" target="_blank" rel="noopener">https://doi.org/10.1189/jlb.1210695</a>
+        </li>
+      </ol>
+    </div>
   </section>
 
-  <hr class="section-sep" />
+  <!-- Search section card -->
+  <section class="section-card">
+    <div class="section-card-body">
+      <h2 class="section-heading">Ask anything about the research</h2>
+      <p class="search-hint">Examples: What is porphyria? What are connexins? How does ciclopirox work?&hellip;</p>
 
-  <!-- Search section -->
-  <section class="search-section">
-    <h2 class="search-heading">Ask anything about the research</h2>
-    <p class="search-examples">Examples: What is porphyria? What are connexins? How does ciclopirox work?&hellip;</p>
-    <form id="form" autocomplete="off">
-      <div class="search-row">
-        <input
-          type="text"
-          id="query"
-          placeholder="Ask anything about the research..."
-          required
-        />
-        <button type="submit" id="btn" class="btn-search">
-          <span class="spinner"></span>
-          <span class="btn-label">Search</span>
-        </button>
-        <button type="button" id="btn-clear" class="btn-clear">Clear</button>
-      </div>
-    </form>
-
-    <!-- PubMed agent card — fixed below search bar, always visible -->
-    <div class="agent-card">
-      <img src="/public/robot.png" alt="AI" class="robot-icon" />
-      <div class="agent-card-body">
-        <p>Want me to also search PubMed for related current research?</p>
-        <div class="toggle-group">
-          <button type="button" id="btn-yes" class="btn-toggle">Yes</button>
-          <button type="button" id="btn-no" class="btn-toggle active">No</button>
+      <!-- PubMed agent card - always visible -->
+      <div class="agent-card">
+        <img src="/public/robot.png" alt="AI agent" class="robot-icon" />
+        <div class="agent-card-body">
+          <p>Want me to also search PubMed for related current research?</p>
+          <div class="toggle-group">
+            <button type="button" id="btn-yes" class="btn-toggle">Yes</button>
+            <button type="button" id="btn-no" class="btn-toggle active">No</button>
+          </div>
         </div>
       </div>
+
+      <form id="form" autocomplete="off">
+        <div class="search-row">
+          <input
+            type="text"
+            id="query"
+            placeholder="Ask anything about the research..."
+            required
+          />
+          <button type="submit" id="btn" class="btn-primary">
+            <span class="spinner"></span>
+            <span class="btn-label">Search</span>
+          </button>
+          <button type="button" id="btn-clear" class="btn-secondary">Clear</button>
+        </div>
+      </form>
     </div>
+  </section>
 
-    <div id="loading-row" class="loading-row" hidden>
-      <div class="dot-spinner"></div>
-      <span>Generating answer&hellip;</span>
+  <!-- Loading indicator (between search and answer) -->
+  <div id="loading-row" class="loading-row" hidden>
+    <div class="dot-spinner"></div>
+    <span>Generating answer&hellip;</span>
+  </div>
+
+  <!-- Search error -->
+  <div id="error" class="error-box" hidden></div>
+
+  <!-- Answer section card -->
+  <section id="result" class="section-card" hidden>
+    <div class="section-card-header">
+      <p class="section-eyebrow">Answer</p>
     </div>
-
-    <div id="error" class="error-box" hidden></div>
-
-    <div id="result" class="result" hidden>
-      <div class="section-label">Answer</div>
-      <div class="answer-card" id="answer"></div>
+    <div class="section-card-body">
+      <div class="answer-content" id="answer"></div>
 
       <div id="sources-block" class="sources-block" hidden>
-        <span class="section-label" style="margin-bottom:0">Sources</span>
+        <p class="section-eyebrow">Sources</p>
         <div class="tags" id="tags"></div>
       </div>
     </div>
+  </section>
 
-    <!-- PubMed results -->
-    <div id="pubmed-results" class="pubmed-results" hidden>
+  <!-- PubMed section card -->
+  <section id="pubmed-results" class="section-card" hidden>
+    <div class="section-card-header">
+      <h3 class="section-heading">PubMed Literature</h3>
+    </div>
+    <div class="section-card-body">
       <div id="pubmed-loading" class="loading-row" hidden>
         <div class="dot-spinner"></div>
         <span>Searching PubMed&hellip;</span>
       </div>
       <div id="pubmed-error" class="error-box" hidden></div>
       <div id="pubmed-articles" hidden>
-        <h3 class="pubmed-heading">PubMed Literature</h3>
         <div id="pubmed-list" class="pubmed-list"></div>
       </div>
     </div>
@@ -735,7 +386,6 @@ async def search_pubmed(req: SearchRequest):
     params = {"tool": "bioragsearch", "email": "research@bioragsearch.app"}
 
     async with httpx.AsyncClient(timeout=15) as client:
-        # Step 1: get PubMed IDs for the query
         search_resp = await client.get(
             f"{base}/esearch.fcgi",
             params={**params, "db": "pubmed", "term": query, "retmax": 5, "retmode": "json"},
@@ -746,7 +396,6 @@ async def search_pubmed(req: SearchRequest):
         if not ids:
             return {"articles": []}
 
-        # Step 2: fetch summaries for those IDs
         summary_resp = await client.get(
             f"{base}/esummary.fcgi",
             params={**params, "db": "pubmed", "id": ",".join(ids), "retmode": "json"},
