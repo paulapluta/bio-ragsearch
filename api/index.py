@@ -278,10 +278,10 @@ _HTML = """\
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 22px 24px;
-      font-size: 0.9375rem;
-      line-height: 1.8;
+      font-size: 1rem;
+      line-height: 1.65;
       color: var(--text-1);
-      white-space: pre-wrap;
+      white-space: pre-line;
       word-break: break-word;
     }
 
@@ -328,10 +328,9 @@ _HTML = """\
     }
 
     .robot-icon {
-      width: 28px;
-      height: 28px;
+      width: 48px;
+      height: 48px;
       flex-shrink: 0;
-      margin-top: 2px;
     }
 
     .agent-card-body { flex: 1; min-width: 0; }
@@ -415,8 +414,9 @@ _HTML = """\
 
 <header class="site-header">
   <h1>bio-ragsearch</h1>
-  <p class="subtitle">A personal experiment in RAG - built to explore how retrieval-augmented
-    generation works using research papers as a knowledge base. Built with Claude Code.</p>
+  <p class="subtitle">A personal experiment in RAG, agent, and MCP - built to explore how
+    retrieval-augmented generation, agentic behavior, and live data retrieval work together
+    using research papers. Built with Claude Code.</p>
 </header>
 <hr />
 
@@ -481,6 +481,18 @@ _HTML = """\
       </div>
     </form>
 
+    <!-- PubMed agent card — fixed below search bar, always visible -->
+    <div class="agent-card">
+      <img src="/public/robot.png" alt="AI" class="robot-icon" />
+      <div class="agent-card-body">
+        <p>Want me to also search PubMed for related current research?</p>
+        <div class="toggle-group">
+          <button type="button" id="btn-yes" class="btn-toggle">Yes</button>
+          <button type="button" id="btn-no" class="btn-toggle active">No</button>
+        </div>
+      </div>
+    </div>
+
     <div id="loading-row" class="loading-row" hidden>
       <div class="dot-spinner"></div>
       <span>Generating answer&hellip;</span>
@@ -495,18 +507,6 @@ _HTML = """\
       <div id="sources-block" class="sources-block" hidden>
         <span class="section-label" style="margin-bottom:0">Sources</span>
         <div class="tags" id="tags"></div>
-      </div>
-    </div>
-
-    <!-- PubMed agent card — always visible -->
-    <div class="agent-card">
-      <img src="/public/robot.png" alt="AI" class="robot-icon" />
-      <div class="agent-card-body">
-        <p>Want me to also search PubMed for related current research?</p>
-        <div class="toggle-group">
-          <button type="button" id="btn-yes" class="btn-toggle">Yes</button>
-          <button type="button" id="btn-no" class="btn-toggle active">No</button>
-        </div>
       </div>
     </div>
 
